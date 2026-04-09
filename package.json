@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"peru",
-    "start": "node --watch index.js"
+    "start": "node --watch calculadora.js"
   },
   "keywords": [],
   "author": "",
