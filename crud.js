@@ -46,28 +46,106 @@ const users = [
         hobbis: ["Carpintería", "Jardinería", "Viajes"]
     }
 ]
+//debera tener un GET que obtenga a todos los usuarios,
+//  un GET por ID para obtener un usuario por ID,
+//  un POST para crear un nuevo usuarios (como es de forma logica mostrar la lista completa con el nuevo usuarios),
+//  PATCH para modificar parcialmente un usuario (deberan mostrar el usuario una vez fue modificado),
+//  PUT para modificar de forma completa un usuario (lo mismo que el patch deben mostrar el usuaro modificado) 
+// y DELETE debera eliminar un usuario de lalista y mostrar nuevamente la lista ya con el usuario eliminado
 
+//200 OK (http.cat/200): Todo salió bien.
+//201 Created (http.cat/201): Se creó un recurso con éxito.
+//404 Not Found (http.cat/404): Lo que buscas no existe.
+//500 Server Error (http.cat/500): Error en tu lógica de programación.
+
+//user.age = req.body.age ? req.body.age : user.age. si req.body.age existe lo usa y sino usa el que ya existe
+
+//{
+//    "firstname": "santino",
+//    "lastname": "rioja",
+//    "isActive": true,
+//    "age": 17,
+//    "hobbis": ["lolear", "jugar", "ver anime"]
+//}
 server.get('/users', (req, res) => {
-    res.json(users)
+    res.status(200).json(users)
 })
+server.get('/users/:id', (req, res) => {
+    const id = Number(req.params.id)
+    var user = {}
+    for (let i = 0; i < users.length; i++) {
+        if (users[i].id === id) {
+            console.log(users[i])
+            user = users[i]
+        }
+    }
+    res.status(200).json(user)
 
+})
 server.post('/users', (req, res) => {
-    const { firstname, lastname, isActive, age, hobbis } = req.body
-
-    if (!firstname || !lastname || age === undefined) {
-        return res.status(400).json({ error: 'Faltan campos obligatorios: firstname, lastname, age' })
+    const { firstname, lastname, age, isActive, hobbis } = req.body
+    let newID = users[0].id
+    for (let i = 0; i < users.length; i++) {
+        if (users[i].id > newID) {
+            newID = users[i].id
+        }
     }
 
     const nuevoUsuario = {
-        id: users.length + 1,
+        id: newID + 1,
         firstname,
         lastname,
         isActive: isActive ?? false,
         age,
-        hobbis: hobbis ?? []
+        hobbis
     }
     users.push(nuevoUsuario)
-    res.json(users)
+    res.status(201).json(users)
+})
+server.patch('/users/:id', (req, res) => {
+    const id = Number(req.params.id)
+    const { firstname, lastname, age, isActive, hobbis } = req.body
+    if (firstname || lastname || age || isActive || hobbis) {
+        for (i = 0; i < users.length; i++) {
+            if (users[i].id === id) {
+                if (firstname !== undefined) { users[i].firstname = firstname } 
+                if (lastname !== undefined) { users[i].lastname = lastname }
+                if (age !== undefined){users[i].age = age}
+                if (isActive !== undefined){users[i].isActive = isActive}
+                if (hobbis !== undefined){users[i].hobbis = hobbis}
+                res.status(200).json(users[i])
+            }
+            
+        }
+    }
+
+    
+})
+server.put('/users/:id', (req, res)=>{
+const id = Number(req.params.id)
+const {firstname, lastname, age, isActive, hobbis} = req.body
+for (let i = 0; i < users.length; i++){
+    if (users[i].id == id){
+        users[i].firstname= firstname  
+        users[i].lastname = lastname
+        users[i].age = age
+        users[i].isActive = isActive
+        users[i].hobbis = hobbis
+        res.status(200).json(users[i])
+    }
+    
+}
+})
+server.delete('/users/:id', (req,res)=>{
+    const id = Number(req.params.id)
+    let index = 0
+    for (let i = 0 ; i < users.length; i++){
+        if (users[i].id === id){
+            index = i
+            users.splice(i,1)
+        }
+    }
+    res.status(200).json(users)
 })
 
 server.listen(port, () => {
